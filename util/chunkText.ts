@@ -10,7 +10,7 @@
 const chunkText = (
   text: string,
   len: number,
-  padding: string = " "
+  padding: string = "0"
 ): string[] => {
   let chunks = [];
 

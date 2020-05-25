@@ -1,6 +1,19 @@
-// const crypto = require("crypto");
+import { HmacSha256 } from "https://deno.land/std@v0.53.0/hash/sha256.ts";
 
-// Reference: https://csrc.nist.gov/csrc/media/publications/fips/197/final/documents/fips-197.pdf
-const encrypt = (plaintext, key) => {};
+/**
+ * Hashes a message using a secret key.
+ *
+ * Ideally we would want this to _encrypt_ instead of _hash_,
+ * but since decryption is not needed and the deno std lib
+ * includes hashing functions, this will work fine for our use case.
+ *
+ * @param message - Message to encrypt
+ * @param key - Secret key
+ */
+const encrypt = (message: string, key: string): string => {
+  const sha = new HmacSha256(key);
+  sha.update(message);
+  return sha.hex();
+};
 
 export default encrypt;
