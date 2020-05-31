@@ -1,6 +1,7 @@
 export default {
   secretKey: "abc",
   nonce: 1234,
-  inFile: "in.txt",
-  outFile: "out.bin",
+  textFile: "text.txt",
+  encryptedFile: "encrypted.bin",
+  mode: "encrypt",
 };

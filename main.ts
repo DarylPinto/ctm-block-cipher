@@ -1,33 +1,42 @@
-import countBytes from "./util/countBytes.ts";
-import chunkText from "./util/chunkText.ts";
+import chunkUint8Array from "./util/chunkUint8Array.ts";
+import concatUint8Arrays from "./util/concatUint8Arrays.ts";
 import encrypt from "./util/encrypt.ts";
 import xor from "./util/xor.ts";
-import concatUint8Arrays from "./util/concatUint8Arrays.ts";
 import config from "./config.ts";
 
-const PLAIN_TEXT = await Deno.readTextFile(config.inFile);
-const CHAR_SIZE_BITS = countBytes("a") * 8;
-const BLOCK_SIZE_BITS = 256;
+// Check config to determine whether to encrypt or decrypt
+let inFile = config.textFile;
+let outFile = config.encryptedFile;
+if (config.mode === "decrypt") {
+  inFile = config.encryptedFile;
+  outFile = config.textFile;
+}
 
+// Encryption/decryption settings
+const BLOCK_SIZE_BITS = 256;
 const SECRET_KEY = config.secretKey;
 const NONCE = config.nonce;
 
-// Chunk plaintext into blocks of 256 bits
-const textEncoder = new TextEncoder();
-const blockSize = BLOCK_SIZE_BITS / CHAR_SIZE_BITS;
-const plainTextChunks = chunkText(PLAIN_TEXT, blockSize);
+// Load input
+const MESSAGE_BYTES = await Deno.readFile(inFile);
 
-// Go through each plaintext message chunk and encode it
+// Chunk input into blocks of 256 bits
+const blockSizeBytes = BLOCK_SIZE_BITS / 8;
+const blocks = chunkUint8Array(MESSAGE_BYTES, blockSizeBytes);
+
+// Go through each block and encode/decode it
 let cipheredBlockArray: Uint8Array[] = [];
-plainTextChunks.forEach((textChunk, i) => {
-  const counter = NONCE + i + 1;
+blocks.forEach((block, i) => {
+  const counter = NONCE + i;
   const cipheredCounter = encrypt(counter.toString(), SECRET_KEY);
-  const messageBlock = textEncoder.encode(textChunk);
-  const cipheredBlock = xor(cipheredCounter, messageBlock);
+  const cipheredBlock = xor(cipheredCounter, block);
   cipheredBlockArray.push(cipheredBlock);
 });
 
 // Concatenate encoded blocks and write to file
 const output = concatUint8Arrays(cipheredBlockArray);
-await Deno.writeFile(config.outFile, output);
-console.log(`Done, wrote to ${config.outFile}!`);
+await Deno.writeFile(outFile, output);
+
+// Log results
+const crypt = config.mode === "decrypt" ? "decrypted" : "encrypted";
+console.log(`Done! ${inFile} has been ${crypt} and written to ${outFile}!`);
