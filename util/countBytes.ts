@@ -4,6 +4,6 @@
  * 
  * @param text - UTF-8 string to count bytes of 
  */
-const byteCount = (text: string) => encodeURI(text).split(/%..|./).length - 1;
+const byteCount = (text: string): number => encodeURI(text).split(/%..|./).length - 1;
 
 export default byteCount;
