@@ -4,14 +4,13 @@ This program implements a CTR/counter mode block cipher ([as described in this v
 
 ## Encryption
 
-1. Add your plaintext into `text.txt`
-2. `deno run --allow-read --allow-write main.ts`
-3. Encrypted content will be written to `encrypted.bin`
+```bash
+deno run --allow-read --allow-write main.ts
+```
+will encrypt the contents of `text.txt`
 
 ## Decryption
-This algorthim is reversable, meaning that you can run it again on the output to get the corresponding input.
-
-To make this easy, all you have to do is set the `mode` in `config.ts` to `"decrypt"` and run the same command from above. This will decrypt the content from `encrypted.bin` and write it into `text.txt`
+This algorthim is reversable, meaning that the program can also decrypt a file as long as the same `nonce` and `secretKey` are used. Therefore, if you run the command from the previous section again you can decrypt the file you just encrypted.
 
 ## How does it work? 
 [Watch this video by Dr. Mike Pound](https://youtu.be/Rk0NIQfEXBA) to learn about the algorithm.
@@ -24,4 +23,8 @@ To make this easy, all you have to do is set the `mode` in `config.ts` to `"decr
 
 ## Disclaimer
 
-**This is purely a hobbyist's amateur implementation, and should not be used in any production application.**
+**This is purely a hobbyist's amateur implementation, and should not be used in any production application or on any important files. Use at your own risk.**
+
+## License
+
+MIT

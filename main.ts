@@ -4,27 +4,25 @@ import encrypt from "./util/encrypt.ts";
 import xor from "./util/xor.ts";
 import config from "./config.ts";
 
-// Check config to determine whether to encrypt or decrypt
-let inFile = config.textFile;
-let outFile = config.encryptedFile;
-if (config.mode === "decrypt") {
-  inFile = config.encryptedFile;
-  outFile = config.textFile;
-}
+import { __ } from "https://deno.land/x/dirname/mod.ts";
+const { __dirname } = __(import.meta);
+
+console.log("Working...");
 
 // Encryption/decryption settings
-const BLOCK_SIZE_BITS = 256;
+const TARGET_FILE = `${__dirname}/${config.targetFile}`;
 const SECRET_KEY = config.secretKey;
 const NONCE = config.nonce;
 
 // Load input
-const MESSAGE_BYTES = await Deno.readFile(inFile);
+const MESSAGE_BYTES = await Deno.readFile(TARGET_FILE);
 
 // Chunk input into blocks of 256 bits
-const blockSizeBytes = BLOCK_SIZE_BITS / 8;
-const blocks = chunkUint8Array(MESSAGE_BYTES, blockSizeBytes);
+const BLOCK_SIZE_BITS = 256;
+const BLOCK_SIZE_BYTES = BLOCK_SIZE_BITS / 8;
+const blocks = chunkUint8Array(MESSAGE_BYTES, BLOCK_SIZE_BYTES);
 
-// Go through each block and encode/decode it
+// Go through each block and encode it
 let cipheredBlockArray: Uint8Array[] = [];
 blocks.forEach((block, i) => {
   const counter = NONCE + i;
@@ -35,8 +33,7 @@ blocks.forEach((block, i) => {
 
 // Concatenate encoded blocks and write to file
 const output = concatUint8Arrays(cipheredBlockArray);
-await Deno.writeFile(outFile, output);
+await Deno.writeFile(TARGET_FILE, output);
 
 // Log results
-const crypt = config.mode === "decrypt" ? "decrypted" : "encrypted";
-console.log(`Done! ${inFile} has been ${crypt} and written to ${outFile}!`);
+console.log(`Done! Wrote to ${TARGET_FILE}!`);
